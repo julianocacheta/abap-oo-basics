@@ -30,8 +30,8 @@ CLASS ZCL_ABAP_TO_JSON IMPLEMENTATION.
         writer->set_option( option = if_sxml_writer=>co_opt_indent ).
         reader->next_node( ).
         reader->skip_node( writer ).
-*       data(json_output) = cl_abap_codepage=>convert_from( CAST cl_sxml_string_writer( writer )->get_output( ) ).
-        data(json_output) = CL_ABAP_CONV_CODEPAGE=>CREATE_IN(  )->CONVERT( CAST cl_sxml_string_writer( writer )->get_output( ) ).
+       data(json_output) = cl_abap_codepage=>convert_from( CAST cl_sxml_string_writer( writer )->get_output( ) ).
+*        data(json_output) = CL_ABAP_CONV_CODEPAGE=>CREATE_IN(  )->CONVERT( CAST cl_sxml_string_writer( writer )->get_output( ) ).
       CATCH cx_sxml_parse_error.
         RETURN.
     ENDTRY.

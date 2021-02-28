@@ -11,7 +11,7 @@ CLASS zcl_oo_tutorial_5 DEFINITION
         price    TYPE /dmo/flight_price,
         currency TYPE /dmo/currency_code,
       END OF cost .
-   DATA nested TYPE zcl_simple_example=>example_table_type.
+    DATA nested TYPE zcl_simple_example=>example_table_type.
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING
@@ -29,12 +29,12 @@ CLASS zcl_oo_tutorial_5 DEFINITION
       RETURNING
         VALUE(price) TYPE cost.
 
-    "! <p class="shorttext synchronized" lang="en">Flight</p>
-
     DATA test TYPE c LENGTH 10 VALUE 'HI'.
     DATA test_string_table TYPE string_table.
   PROTECTED SECTION.
   PRIVATE SECTION.
+
+    "! <p class="shorttext synchronized" lang="en">Flight</p>
     DATA flight TYPE /dmo/flight.
     DATA obj3 TYPE REF TO zcl_oo_tutorial_3.
     "DATA nested TYPE zcl_simple_example=>example_table_type.
@@ -69,10 +69,10 @@ CLASS zcl_oo_tutorial_5 IMPLEMENTATION.
       SELECT * FROM /dmo/flight
         WHERE carrier_id = @connection->carrier_id AND connection_id = @connection->connection_id
          INTO CORRESPONDING FIELDS OF TABLE @connection->flight.
-      LOOP AT connection->flight REFERENCE INTO DATA(flightTemp).
+      LOOP AT connection->flight REFERENCE INTO DATA(flighttemp).
         SELECT * FROM /dmo/booking
-            WHERE carrier_id = @connection->carrier_id AND connection_id = @connection->connection_id AND flight_date = @flightTemp->flight_date
-            INTO CORRESPONDING FIELDS OF TABLE @flightTemp->booking.
+            WHERE carrier_id = @connection->carrier_id AND connection_id = @connection->connection_id AND flight_date = @flighttemp->flight_date
+            INTO CORRESPONDING FIELDS OF TABLE @flighttemp->booking.
       ENDLOOP.
     ENDLOOP.
 

@@ -1,151 +1,151 @@
 "! <p class="shorttext synchronized" lang="en">ABAP Table Expressions Examples</p>
-CLASS ZCL_TABLE_EXPRESSIONS DEFINITION
+CLASS zcl_table_expressions DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES IF_OO_ADT_CLASSRUN.
+    INTERFACES if_oo_adt_classrun.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
 
 
-CLASS ZCL_TABLE_EXPRESSIONS IMPLEMENTATION.
+CLASS zcl_table_expressions IMPLEMENTATION.
 
 
-  METHOD IF_OO_ADT_CLASSRUN~MAIN.
-    DATA FLIGHTS TYPE STANDARD TABLE OF /DMO/FLIGHT
-          WITH NON-UNIQUE SORTED KEY PLTYPE COMPONENTS PLANE_TYPE_ID.
-    SELECT * FROM /DMO/FLIGHT INTO TABLE @FLIGHTS.
+  METHOD if_oo_adt_classrun~main.
+    DATA flights TYPE STANDARD TABLE OF /dmo/flight
+          WITH NON-UNIQUE SORTED KEY pltype COMPONENTS plane_type_id.
+    SELECT * FROM /dmo/flight INTO TABLE @flights.
 
     TRY.
 ****Old
-        READ TABLE FLIGHTS INDEX 1 INTO DATA(WA).
+        READ TABLE flights INDEX 1 INTO DATA(wa).
 
 ****New
-        DATA(WA1) = FLIGHTS[ 1 ].
+        DATA(wa1) = flights[ 1 ].
 
 ****Old
-        READ TABLE FLIGHTS INDEX 1
-             USING KEY PLTYPE INTO DATA(WA3).
+        READ TABLE flights INDEX 1
+             USING KEY pltype INTO DATA(wa3).
 
 ****New
-        DATA(WA4) = FLIGHTS[ KEY PLTYPE INDEX 1 ].
+        DATA(wa4) = flights[ KEY pltype INDEX 1 ].
 
 ****Old
-        READ TABLE FLIGHTS WITH KEY
-            CARRIER_ID = 'AA' CONNECTION_ID = '0064' INTO DATA(WA5).
+        READ TABLE flights WITH KEY
+            carrier_id = 'AA' connection_id = '0064' INTO DATA(wa5).
 
 ****New
-        DATA(WA6) = FLIGHTS[ CARRIER_ID = 'AA' CONNECTION_ID = '0064' ].
+        DATA(wa6) = flights[ carrier_id = 'AA' connection_id = '0064' ].
 
 ****Old
-        READ TABLE FLIGHTS WITH TABLE KEY PLTYPE
-             COMPONENTS PLANE_TYPE_ID = '747-400' INTO DATA(WA7).
+        READ TABLE flights WITH TABLE KEY pltype
+             COMPONENTS plane_type_id = '747-400' INTO DATA(wa7).
 
 ****New
-        DATA(WA8) = FLIGHTS[ KEY PLTYPE PLANE_TYPE_ID = '747-400' ].
+        DATA(wa8) = flights[ KEY pltype plane_type_id = '747-400' ].
 
 ****Old
-        READ TABLE FLIGHTS INDEX 1 ASSIGNING FIELD-SYMBOL(<LINE1>).
-        <LINE1>-PLANE_TYPE_ID = 'A310-300'.
+        READ TABLE flights INDEX 1 ASSIGNING FIELD-SYMBOL(<line1>).
+        <line1>-plane_type_id = 'A310-300'.
 
 ****New
-        FLIGHTS[ 1 ]-PLANE_TYPE_ID = 'A319'.
+        flights[ 1 ]-plane_type_id = 'A319'.
 
 ****Old
-        READ TABLE FLIGHTS INDEX 1 INTO DATA(LINE2).
-        IF SY-SUBRC <> 0.
-          LINE2 = WA3.
+        READ TABLE flights INDEX 1 INTO DATA(line2).
+        IF sy-subrc <> 0.
+          line2 = wa3.
         ENDIF.
-        ZCL_SIMPLE_EXAMPLE=>METHOD2( LINE2 ).
-      CATCH CX_SY_ITAB_LINE_NOT_FOUND.
+        zcl_simple_example=>method2( line2 ).
+      CATCH cx_sy_itab_line_not_found.
     ENDTRY.
 
 ****New
-    ZCL_SIMPLE_EXAMPLE=>METHOD2( VALUE #( FLIGHTS[ 1 ] DEFAULT WA3 ) ).
+    zcl_simple_example=>method2( VALUE #( flights[ 1 ] DEFAULT wa3 ) ).
 
 ****Old
-    READ TABLE FLIGHTS INDEX 1 REFERENCE INTO DATA(LINEREF1).
-    ZCL_SIMPLE_EXAMPLE=>METHOD3( LINEREF1 ).
+    READ TABLE flights INDEX 1 REFERENCE INTO DATA(lineref1).
+    zcl_simple_example=>method3( lineref1 ).
 
 ****New
-    ZCL_SIMPLE_EXAMPLE=>METHOD3( REF #( FLIGHTS[ 1 ] ) ).
+    zcl_simple_example=>method3( REF #( flights[ 1 ] ) ).
 
 ****Setup for nested internal table
-    DATA NESTED TYPE ZCL_SIMPLE_EXAMPLE=>EXAMPLE_TABLE_TYPE.
-    SELECT * FROM /DMO/CONNECTION WHERE CARRIER_ID = 'AA' INTO CORRESPONDING FIELDS OF TABLE @NESTED.
-    LOOP AT NESTED REFERENCE INTO DATA(CONNECTION).
-      SELECT * FROM /DMO/FLIGHT
-        WHERE CARRIER_ID = @CONNECTION->CARRIER_ID AND CONNECTION_ID = @CONNECTION->CONNECTION_ID
-         INTO CORRESPONDING FIELDS OF TABLE @CONNECTION->FLIGHT.
-      LOOP AT CONNECTION->FLIGHT REFERENCE INTO DATA(FLIGHT).
-        SELECT * FROM /DMO/BOOKING
-            WHERE CARRIER_ID = @CONNECTION->CARRIER_ID AND CONNECTION_ID = @CONNECTION->CONNECTION_ID AND FLIGHT_DATE = @FLIGHT->FLIGHT_DATE
-            INTO CORRESPONDING FIELDS OF TABLE @FLIGHT->BOOKING.
+    DATA nested TYPE zcl_simple_example=>example_table_type.
+    SELECT * FROM /dmo/connection WHERE carrier_id = 'AA' INTO CORRESPONDING FIELDS OF TABLE @nested.
+    LOOP AT nested REFERENCE INTO DATA(connection).
+      SELECT * FROM /dmo/flight
+        WHERE carrier_id = @connection->carrier_id AND connection_id = @connection->connection_id
+         INTO CORRESPONDING FIELDS OF TABLE @connection->flight.
+      LOOP AT connection->flight REFERENCE INTO DATA(flight).
+        SELECT * FROM /dmo/booking
+            WHERE carrier_id = @connection->carrier_id AND connection_id = @connection->connection_id AND flight_date = @flight->flight_date
+            INTO CORRESPONDING FIELDS OF TABLE @flight->booking.
       ENDLOOP.
     ENDLOOP.
 
 ****Old
-    READ TABLE NESTED     INTO DATA(NEST1) INDEX 2.
-    READ TABLE NEST1-FLIGHT INTO DATA(NEST2) INDEX 1.
-    READ TABLE NEST2-BOOKING   INTO DATA(NEST3) INDEX 2.
-    OUT->WRITE( NEST3-CUSTOMER_ID ).
+    READ TABLE nested     INTO DATA(nest1) INDEX 2.
+    READ TABLE nest1-flight INTO DATA(nest2) INDEX 1.
+    READ TABLE nest2-booking   INTO DATA(nest3) INDEX 2.
+    out->write( nest3-customer_id ).
 
 
 ****New
-    DATA(CUSTOMER2) = NESTED[ 2 ]-FLIGHT[ 1 ]-BOOKING[ 2 ]-CUSTOMER_ID.
-    OUT->WRITE(  CUSTOMER2 ).
+    DATA(customer2) = nested[ 2 ]-flight[ 1 ]-booking[ 2 ]-customer_id.
+    out->write(  customer2 ).
 
 
 ****Old
-    READ TABLE FLIGHTS WITH KEY
-        CARRIER_ID = 'AA' CONNECTION_ID = '0064' TRANSPORTING NO FIELDS.
-    DATA(INDEX1) = SY-TABIX.
-    OUT->WRITE( INDEX1 ).
+    READ TABLE flights WITH KEY
+        carrier_id = 'AA' connection_id = '0064' TRANSPORTING NO FIELDS.
+    DATA(index1) = sy-tabix.
+    out->write( index1 ).
 
 ****New
-    DATA(INDEX2) = LINE_INDEX( FLIGHTS[ CARRIER_ID = 'AA' CONNECTION_ID = '0064' ] ).
-    OUT->WRITE( INDEX2 ).
+    DATA(index2) = line_index( flights[ carrier_id = 'AA' connection_id = '0064' ] ).
+    out->write( index2 ).
 
 
 ****Old
-    DATA HTML TYPE STRING.
-    HTML = `<table>`.
-    LOOP AT FLIGHTS ASSIGNING FIELD-SYMBOL(<WA_SFLIGHT>).
-      HTML =
-        |{ HTML }<tr><td>{ <WA_SFLIGHT>-CARRIER_ID }| &
-        |</td><td>{ <WA_SFLIGHT>-CONNECTION_ID }</td></tr>|.
+    DATA html TYPE string.
+    html = `<table>`.
+    LOOP AT flights ASSIGNING FIELD-SYMBOL(<wa_sflight>).
+      html =
+        |{ html }<tr><td>{ <wa_sflight>-carrier_id }| &
+        |</td><td>{ <wa_sflight>-connection_id }</td></tr>|.
     ENDLOOP.
-    HTML = HTML && `</table>`.
+    html = html && `</table>`.
 
 ****New
-    DATA(HTML2) = REDUCE STRING(
-       INIT H = `<table>`
-       FOR  SFLIGHT2 IN FLIGHTS
-       NEXT H =  |{ H }<tr><td>{ SFLIGHT2-CARRIER_ID }| &
-                 |</td><td>{ SFLIGHT2-CONNECTION_ID }</td></tr>| ) && `</table>`.
+    DATA(html2) = REDUCE string(
+       INIT h = `<table>`
+       FOR  sflight2 IN flights
+       NEXT h =  |{ h }<tr><td>{ sflight2-carrier_id }| &
+                 |</td><td>{ sflight2-connection_id }</td></tr>| ) && `</table>`.
 
 ****New
-    SELECT * FROM /DMO/CONNECTION INTO TABLE @DATA(CONNECTIONS).
-    LOOP AT CONNECTIONS REFERENCE INTO DATA(FLG)
-       GROUP BY COND #( WHEN FLG->DISTANCE < 120 THEN 0
-                        WHEN FLG->DISTANCE > 600 THEN 99
-                        ELSE TRUNC( FLG->DISTANCE / '60' ) )
+    SELECT * FROM /dmo/connection INTO TABLE @DATA(connections).
+    LOOP AT connections REFERENCE INTO DATA(flg)
+       GROUP BY COND #( WHEN flg->distance < 120 THEN 0
+                        WHEN flg->distance > 600 THEN 99
+                        ELSE trunc( flg->distance / '60' ) )
        ASCENDING
-       REFERENCE INTO DATA(FD).
-      OUT->WRITE(  |Distance: { COND #( WHEN FD->* = 0  THEN `less than 2`
-                                        WHEN FD->* = 99 THEN `more than 10`
-                                        ELSE FD->* ) } hours | ).
-      LOOP AT GROUP FD REFERENCE INTO DATA(FLG2).
-        OUT->WRITE(  |    { FLG2->AIRPORT_FROM_ID }-{ FLG2->AIRPORT_TO_ID }: { FLG2->DISTANCE }| ).
+       REFERENCE INTO DATA(fd).
+      out->write(  |Distance: { COND #( WHEN fd->* = 0  THEN `less than 2`
+                                        WHEN fd->* = 99 THEN `more than 10`
+                                        ELSE fd->* ) } hours | ).
+      LOOP AT GROUP fd REFERENCE INTO DATA(flg2).
+        out->write(  |    { flg2->airport_from_id }-{ flg2->airport_to_id }: { flg2->distance }| ).
       ENDLOOP.
     ENDLOOP.
 
 ****Breakpoint helper
-    IF SY-SUBRC = 0.
+    IF sy-subrc = 0.
     ENDIF.
   ENDMETHOD.
 ENDCLASS.
